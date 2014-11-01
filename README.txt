@@ -68,8 +68,13 @@ The simulator consists mainly of four files:
   the program in a order induced by the dependancies (topological
   sort).
 
+### Choices
+- An array of value is associated to each `RAM` or `ROM` instruction
+in the netlist. That is, two different instructions (in the netlist)
+will refer to two different memories.
 
 ### Difficulties encountered
+
 - As the ram has to be modified inplace (it would be too costly to
 copy), a first pass computes the values of all the variables (the
 value of a ram is the value at read_address before any write happens)
