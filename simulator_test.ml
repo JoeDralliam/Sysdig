@@ -1,6 +1,4 @@
 open Netlist_ast
-
-
        
 let number_steps = ref (-1)
 let interactive = ref false
@@ -29,7 +27,10 @@ let compile filename =
     in
     Driver.simulation p options
   with
-    | Netlist.Parse_error s -> Format.eprintf "An error accurred: %s@." s; exit 2
+  | Scheduler.Combinational_cycle ->
+     Format.eprintf "A combinatorial cycle has been detected"
+  | Netlist.Parse_error s ->
+     Format.eprintf "An error accurred: %s@." s; exit 2
 
 let main () =
   Arg.parse

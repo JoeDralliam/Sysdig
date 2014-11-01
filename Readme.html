@@ -1,0 +1,83 @@
+<h1>Netlist simulator</h1>
+
+<p>This project is a (digital) circuit simulator. It reads a circuit from
+a file (written in a netlist format) and simulates it step by step.</p>
+
+<h2>Executing</h2>
+
+<h3>Depends</h3>
+
+<p>It only uses standard OCaml (tested with Ocaml 4.01).</p>
+
+<h3>Building</h3>
+
+<p>To build it, type <code>ocamlbuild simulator_test.native</code>.</p>
+
+<p>The generated executable is <code>simulator_test.native</code>.</p>
+
+<h3>Arguments</h3>
+
+<p>The executable has several options, which are all orthogonal :</p>
+
+<ul>
+<li><p><strong>-n</strong> <em>count</em> (<strong>n</strong>umber of steps) : Specify the number of
+steps. Otherwise simulates the circuit indefinitely.</p></li>
+<li><p><strong>-i</strong> (<strong>i</strong>nteractive mode) : Between each step, the user may
+input commands in a mini-shell. Available commands are : step
+output memory variable quit help.</p></li>
+<li><p><strong>-m</strong> <em>file</em> (<strong>m</strong>emory file) : Specify a file to init memories
+(ROMs and RAMs). Otherwise the user will be prompted to enter a
+file on startup. See description below.</p></li>
+<li><p><strong>-v</strong> <em>file</em> (<strong>v</strong>ariable file) : Specify a file to read input
+variable. Otherwise the user will have to enter a value for each
+input variable before each step. See description below.</p></li>
+<li><p><strong>-s</strong> (<strong>s</strong>ilent mode) : Do not print output variables values
+after a step.</p></li>
+</ul>
+
+<h3>Files</h3>
+
+<p>Memory files (see ram.mem) should have on each line a description of
+a memory of the form :</p>
+
+<p><code>memory-name word1 word2 ... wordn</code></p>
+
+<p>Variable files (see fulladder.var) have on each line a comma
+separated list of all the (assigned) variables and their respective
+value (separated by a blank). Each line specifies the input variable
+for a step. The file is considered to be cyclic i.e. if the simulator
+has to execute more steps than the number of lines in the file, the
+line after the (physical) last will be the first one.</p>
+
+<p><code>var1 val1, var2 val2, var3 val3</code></p>
+
+<h2>Notes on the project</h2>
+
+<h3>Architecture</h3>
+
+<p>The simulator consists mainly of four files:</p>
+
+<ul>
+<li><p><code>simulator_test.ml</code> parses the command-line arguments and starts the
+driver</p></li>
+<li><p><code>driver.ml</code> is responsible of all the setup (scheduling) and the I/O
+(reading files, prompting,minishell,...). Its entrypoint is
+<code>Driver.simulation</code>.</p></li>
+<li><p><code>simulator.ml</code> is used to simulate a step of execution. Its entrypoint
+Simulator.step takes the state of the circuit before the step
+(<code>Simulator.state</code>) and returns its state after the step.</p></li>
+<li><p><code>scheduler.ml</code> detects combinatorial cycles and sort the equations of
+the program in a order induced by the dependancies (topological
+sort).</p></li>
+</ul>
+
+<h3>Difficulties encountered</h3>
+
+<ul>
+<li><p>As the ram has to be modified inplace (it would be too costly to
+copy), a first pass computes the values of all the variables (the
+value of a ram is the value at read_address before any write happens)
+and then a second pass writes all the values into the rams.</p></li>
+<li><p>To improve the performance, as the simulator was partly I/O-bound,
+variable files are integrally read and parsed at startup.</p></li>
+</ul>
